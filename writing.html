@@ -1,0 +1,52 @@
+<!-- writing.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Writing Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 30px; background-color: #ffffff; color: #333; }
+    h1 { color: #d2232a; }
+    textarea, button { padding: 10px; font-size: 16px; margin-bottom: 20px; width: 100%; max-width: 600px; }
+    button { background-color: #d2232a; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #a61b20; }
+    .container { max-width: 700px; margin: auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Writing Test</h1>
+    <p id="candidate"></p>
+    <p><strong>Topic:</strong> Write a short message to say you're late.</p>
+    <form id="writingForm" action="speaking.html" method="GET">
+      <textarea id="writingAnswer" rows="8" required placeholder="Write your message here..."></textarea><br>
+      <button type="submit">Next: Speaking</button>
+    </form>
+  </div>
+  <script>
+    document.getElementById('candidate').innerText = "Candidate ID: " + localStorage.getItem('candidateId');
+
+    const form = document.getElementById('writingForm');
+    form.onsubmit = function(e) {
+      e.preventDefault();
+      const answer = document.getElementById('writingAnswer').value.trim();
+      let score = 0;
+
+      // Basic evaluation: check for key phrases and minimum length
+      const keywords = ["sorry", "late", "traffic", "meeting", "arrive", "delay", "minutes"];
+      let keywordHits = 0;
+
+      keywords.forEach(word => {
+        if (answer.toLowerCase().includes(word)) keywordHits++;
+      });
+
+      if (answer.length > 30) score += 4; // Reward length
+      score += Math.min(keywordHits, 3) * 2; // Up to 6 points for keyword usage
+
+      localStorage.setItem('writing_score', score);
+      window.location.href = 'speaking.html';
+    }
+  </script>
+</body>
+</html>

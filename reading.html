@@ -1,0 +1,76 @@
+<!-- reading.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reading Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 30px; background-color: #f9f9f9; color: #333; }
+    h1 { color: #d2232a; }
+    input, button { padding: 8px; font-size: 14px; margin-bottom: 15px; width: 100%; max-width: 400px; }
+    button { background-color: #d2232a; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #a61b20; }
+    .container { max-width: 600px; margin: auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Reading Test</h1>
+    <p id="candidate"></p>
+    <p><strong>Reading Passage:</strong></p>
+    <pre>
+Student ID card application
+First name: Samia
+Last name: Khan
+Date of birth: 09/10/1992
+Address: 5 Ledger Road, Cardiff
+Postcode: CF10 5RE
+Nationality: Canadian
+I declare that the information provided is correct.
+Signature: Samia Khan
+Date: 28/02/2019
+Your checklist – have you got everything you need?
+✔ a passport photo
+✔ a copy of your passport or other photo ID
+✔ proof of student status e.g. a letter from your university
+Your card will be issued within 30 days and sent to the address provided.
+    </pre>
+    <form id="readingForm" action="writing.html" method="GET">
+      <label>1. What is the applicant's first name?</label><br>
+      <input type="text" name="q1" data-answer="samia"><br>
+
+      <label>2. What is the applicant's nationality?</label><br>
+      <input type="text" name="q2" data-answer="canadian"><br>
+
+      <label>3. What city does the applicant live in?</label><br>
+      <input type="text" name="q3" data-answer="cardiff"><br>
+
+      <label>4. What is the postcode listed?</label><br>
+      <input type="text" name="q4" data-answer="cf10 5re"><br>
+
+      <label>5. What is the date of application?</label><br>
+      <input type="text" name="q5" data-answer="28/02/2019"><br>
+
+      <button type="submit">Next: Writing</button>
+    </form>
+  </div>
+  <script>
+    document.getElementById('candidate').innerText = "Candidate ID: " + localStorage.getItem('candidateId');
+
+    const form = document.getElementById('readingForm');
+    form.onsubmit = function(e) {
+      e.preventDefault();
+      let score = 0;
+      const inputs = form.querySelectorAll('input');
+      inputs.forEach(input => {
+        const userAnswer = input.value.trim().toLowerCase();
+        const correct = input.dataset.answer.toLowerCase();
+        if (userAnswer === correct || correct.includes(userAnswer)) score += 2;
+      });
+      localStorage.setItem('reading_score', score);
+      window.location.href = 'writing.html';
+    }
+  </script>
+</body>
+</html>

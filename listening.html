@@ -1,0 +1,84 @@
+<!-- listening.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listening Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 30px; background-color: #ffffff; color: #333; }
+    input, button { padding: 8px; font-size: 14px; }
+    h1 { color: #d2232a; }
+    button { background-color: #d2232a; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #a61b20; }
+  </style>
+</head>
+<body>
+  <h1>Listening Test</h1>
+  <p id="candidate"></p>
+  <audio controls>
+    <source src="https://pravin-a96.github.io/IELTS_user_journey/listening.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+  <form id="questionForm" action="reading.html"></form>
+  <script>
+    document.getElementById('candidate').innerText = "Candidate ID: " + localStorage.getItem('candidateId');
+
+    const questions = [
+      {
+        q: "Who is calling John?",
+        answer: "Marina Silva"
+      },
+      {
+        q: "Where is Marina from?",
+        answer: "Old Time Toys"
+      },
+      {
+        q: "Who gave Marina John's number?",
+        answer: "Alex"
+      },
+      {
+        q: "Why is Marina calling John?",
+        answer: "Information on new products"
+      },
+      {
+        q: "What is Marina's phone number?",
+        answer: "0208 655 7621"
+      }
+    ];
+
+    const form = document.getElementById('questionForm');
+    let score = 0;
+
+    questions.forEach((item, i) => {
+      const label = document.createElement('p');
+      label.innerText = `Q${i + 1}: ${item.q}`;
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.name = `q${i + 1}`;
+      input.dataset.answer = item.answer.toLowerCase();
+      form.appendChild(label);
+      form.appendChild(input);
+    });
+
+    const btn = document.createElement('button');
+    btn.type = 'submit';
+    btn.innerText = 'Next: Reading';
+    btn.onclick = () => {
+      score = 0;
+      const inputs = form.querySelectorAll('input');
+      inputs.forEach(input => {
+        const userAnswer = input.value.trim().toLowerCase();
+        const correct = input.dataset.answer;
+        if (userAnswer === correct || correct.includes(userAnswer)) score += 2;
+      });
+      localStorage.setItem('listening_score', score);
+      //alert(`Your score: ${score}/10`);
+    };
+
+    form.appendChild(document.createElement('br'));
+    form.appendChild(document.createElement('br'));
+    form.appendChild(btn);
+  </script>
+</body>
+</html>

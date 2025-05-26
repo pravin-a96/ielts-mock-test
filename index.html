@@ -1,0 +1,34 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IELTS Mock Exam - Home</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f4f4f4; color: #333; }
+    input, button { padding: 10px; font-size: 16px; }
+    h1 { color: #d2232a; }
+    button { background-color: #d2232a; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #a61b20; }
+  </style>
+</head>
+<body>
+  <h1>Welcome to IELTS Mock Exam</h1>
+  <form action="listening.html" method="GET" onsubmit="return saveCandidateId();">
+    <label for="candidateId">Enter your Candidate ID:</label><br><br>
+    <input type="text" id="candidateId" name="candidateId" required><br><br>
+    <button type="submit">Start Exam</button>
+  </form>
+  <script>
+    function saveCandidateId() {
+      const id = document.getElementById('candidateId').value;
+      localStorage.setItem('candidateId', id);
+      // Set a consistent random set for this candidate
+      const questionSet = Math.floor(Math.random() * 6);
+      localStorage.setItem('questionSet', questionSet);
+      return true;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!-- speaking.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speaking Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 30px; background-color: #ffffff; color: #333; }
+    h1 { color: #d2232a; }
+    button { padding: 10px 20px; font-size: 16px; margin-bottom: 20px; background-color: #d2232a; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #a61b20; }
+    .container { max-width: 700px; margin: auto; }
+    audio { display: block; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Speaking Test</h1>
+    <p id="candidate"></p>
+    <p><strong>Topic:</strong> Describe an important decision you made.</p>
+
+    <button id="recordBtn">Start Recording</button>
+    <button id="stopBtn" disabled>Stop Recording</button>
+    <audio id="audioPlayback" controls></audio>
+
+    <p id="status"></p>
+    <button id="submitBtn" disabled>Submit & Finish</button>
+  </div>
+
+  <script>
+    document.getElementById('candidate').innerText = "Candidate ID: " + localStorage.getItem('candidateId');
+
+    let mediaRecorder;
+    let audioChunks = [];
+    const recordBtn = document.getElementById('recordBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const audioPlayback = document.getElementById('audioPlayback');
+    const status = document.getElementById('status');
+    const submitBtn = document.getElementById('submitBtn');
+
+    recordBtn.onclick = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+
+      mediaRecorder.ondataavailable = e => {
+        audioChunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        audioPlayback.src = audioUrl;
+        submitBtn.disabled = false;
+      };
+
+      audioChunks = [];
+      mediaRecorder.start();
+      status.textContent = 'Recording...';
+      recordBtn.disabled = true;
+      stopBtn.disabled = false;
+    };
+
+    stopBtn.onclick = () => {
+      mediaRecorder.stop();
+      status.textContent = 'Recording stopped. You can playback and submit.';
+      recordBtn.disabled = false;
+      stopBtn.disabled = true;
+    };
+
+    submitBtn.onclick = () => {
+      (async () => {
+        const simulatedScore = Math.floor(Math.random() * 4) + 7; // Random score between 7–10
+        localStorage.setItem('speaking_score', simulatedScore);
+        console.log("Speaking Score:", simulatedScore);
+
+        const listening = parseInt(localStorage.getItem('listening_score') || '0');
+        const reading = parseInt(localStorage.getItem('reading_score') || '0');
+        const writing = parseInt(localStorage.getItem('writing_score') || '0');
+        const speaking = simulatedScore;
+        const overallBand = ((listening + reading + writing + speaking) / 4).toFixed(1);
+        console.log("Overall Band:", overallBand);
+
+        const airtableApiKey = 'patP5myoOJXlKCzuK.607ac622fb775cb2ff3fb91183d3441316a84856ab491cde3c908d907ad9ebfe';
+        const airtableBaseId = 'appCljLncSDsRj2HE';
+        const tableName = 'TT Details';
+        const candidateId = localStorage.getItem('candidateId');
+
+        try {
+          const searchUrl = `https://api.airtable.com/v0/${airtableBaseId}/${tableName}?filterByFormula={Candidate ID}='${candidateId}'`;
+          const searchResponse = await fetch(searchUrl, {
+            headers: { Authorization: `Bearer ${airtableApiKey}` }
+          });
+          const searchData = await searchResponse.json();
+          const recordId = searchData.records[0]?.id;
+
+          if (!recordId) {
+            throw new Error("Candidate record not found.");
+          }
+
+          await fetch(`https://api.airtable.com/v0/${airtableBaseId}/${tableName}/${recordId}`, {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${airtableApiKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              fields: {
+                "Listening Result": listening,
+                "Reading Result": reading,
+                "Writing Result": writing,
+                "Speaking Result": speaking,
+                "Overall Band": parseFloat(overallBand),
+                "Result Published": true
+              }
+            })
+          });
+        } catch (error) {
+          console.error("Error updating Airtable:", error);
+        }
+
+        window.location.href = 'results.html';
+      })();
+    };
+  </script>
+</body>
+</html>
